@@ -17,6 +17,9 @@
 
     <dependencies>
         <!-- 通用工具-->
+
+
+
         <dependency>
             <groupId>org.dromara</groupId>
             <artifactId>ruoyi-common-core</artifactId>
@@ -98,6 +101,12 @@
         <dependency>
             <groupId>org.dromara</groupId>
             <artifactId>ruoyi-common-sse</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>DmJdbcDriver18</artifactId>
+            <version>8.1.3.62</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

@@ -127,6 +127,8 @@ tenant:
     - sys_user_role
     - sys_client
     - sys_oss_config
+    - sys_company_management
+    - sys_org_type
 
 # MyBatisPlus配置
 # https://baomidou.com/config/
@@ -189,7 +191,7 @@ springdoc:
     version: '版本号: ${ruoyi.version}'
     # 作者信息
     contact:
-      name: Lion Li
+      name: Tim
       email: crazylionli@163.com
       url: https://gitee.com/dromara/RuoYi-Vue-Plus
   components:
