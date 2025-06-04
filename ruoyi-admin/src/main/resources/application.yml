@@ -130,6 +130,7 @@ tenant:
     - sys_company_management
     - sys_org_type
     - sys_blacklist
+    - sys_solicitude_rule
 
 # MyBatisPlus配置
 # https://baomidou.com/config/
