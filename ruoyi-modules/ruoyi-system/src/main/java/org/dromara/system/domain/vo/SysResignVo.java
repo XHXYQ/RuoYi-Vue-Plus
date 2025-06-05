@@ -47,4 +47,8 @@ public class SysResignVo implements Serializable {
     @ExcelProperty("离职日期")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
+
+    @ExcelProperty(value = "离职原因")
+    private String remark;
+
 }

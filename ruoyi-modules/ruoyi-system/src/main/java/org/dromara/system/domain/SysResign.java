@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 
 import java.io.Serial;
 import java.util.Date;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_resign")
 public class SysResign extends BaseEntity {
     @Serial
@@ -35,5 +37,7 @@ public class SysResign extends BaseEntity {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
+
+    private String remark;
 
 }
