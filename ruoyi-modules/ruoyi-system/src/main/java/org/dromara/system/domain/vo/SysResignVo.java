@@ -51,4 +51,11 @@ public class SysResignVo implements Serializable {
     @ExcelProperty(value = "离职原因")
     private String remark;
 
+    /**
+     * 状态
+     */
+    @ExcelProperty(value = "状态")
+    private String status;
+
+
 }
