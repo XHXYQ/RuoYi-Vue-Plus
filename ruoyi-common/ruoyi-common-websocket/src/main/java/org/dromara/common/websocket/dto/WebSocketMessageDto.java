@@ -26,4 +26,9 @@ public class WebSocketMessageDto implements Serializable {
      * 需要发送的消息
      */
     private String message;
+
+    /**
+     * 会话 ID（用于群聊消息）
+     */
+    private Long sessionId;
 }

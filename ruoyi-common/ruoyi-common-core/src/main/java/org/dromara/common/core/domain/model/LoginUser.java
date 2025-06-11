@@ -145,4 +145,10 @@ public class LoginUser implements Serializable {
         return userType + ":" + userId;
     }
 
+    /**
+     * 获取 clientId（用于 WebSocket 拦截器中绑定校验）
+     */
+    public Object getClientId() {
+        return this.clientKey;
+    }
 }

@@ -19,6 +19,8 @@ server:
       io: 8
       # 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载
       worker: 256
+    server-options:
+      enable-websockets: true
 
 captcha:
   enable: true
@@ -131,6 +133,9 @@ tenant:
     - sys_org_type
     - sys_blacklist
     - sys_solicitude_rule
+    - sys_chat_message
+    - sys_chat_session_user
+    - sys_chat_session
 
 # MyBatisPlus配置
 # https://baomidou.com/config/
@@ -261,7 +266,7 @@ sse:
 --- # websocket
 websocket:
   # 如果关闭 需要和前端开关一起关闭
-  enabled: false
+  enabled: true
   # 路径
   path: /resource/websocket
   # 设置访问源地址

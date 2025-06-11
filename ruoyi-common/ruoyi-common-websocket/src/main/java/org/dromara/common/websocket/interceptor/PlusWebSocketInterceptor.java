@@ -73,3 +73,116 @@ public class PlusWebSocketInterceptor implements HandshakeInterceptor {
     }
 
 }
+
+
+//package org.dromara.common.websocket.interceptor;
+//
+//import cn.dev33.satoken.exception.NotLoginException;
+//import cn.dev33.satoken.stp.StpUtil;
+//import cn.hutool.core.util.ObjectUtil;
+//import lombok.extern.slf4j.Slf4j;
+//import org.dromara.common.core.domain.model.LoginUser;
+//import org.dromara.common.core.utils.StringUtils;
+//import org.dromara.common.satoken.utils.LoginHelper;
+//import org.dromara.common.websocket.holder.WebSocketSessionHolder;
+//import org.springframework.http.server.ServerHttpRequest;
+//import org.springframework.http.server.ServerHttpResponse;
+//import org.springframework.web.socket.CloseStatus;
+//import org.springframework.web.socket.TextMessage;
+//import org.springframework.web.socket.WebSocketHandler;
+//import org.springframework.web.socket.WebSocketSession;
+//import org.springframework.web.socket.server.HandshakeInterceptor;
+//
+//import java.io.IOException;
+//import java.net.URLDecoder;
+//import java.nio.charset.StandardCharsets;
+//import java.util.Arrays;
+//import java.util.Map;
+//
+//import static org.dromara.common.websocket.constant.WebSocketConstants.LOGIN_USER_KEY;
+//
+///**
+// * WebSocket 握手拦截器（含 token 校验 + clientid 校验）
+// */
+//@Slf4j
+//public class PlusWebSocketInterceptor implements HandshakeInterceptor {
+//
+//    @Override
+//    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
+//                                   WebSocketHandler wsHandler, Map<String, Object> attributes) {
+//        try {
+//            // ✅ 提取参数
+//            String query = request.getURI().getQuery();
+//            if (StringUtils.isBlank(query)) {
+//                log.warn("WebSocket 握手失败：query 参数为空");
+//                return false;
+//            }
+//
+//            // ✅ 解析 Authorization
+//            String tokenParam = Arrays.stream(query.split("&"))
+//                .filter(p -> p.startsWith("Authorization="))
+//                .findFirst()
+//                .orElse(null);
+//
+//            if (StringUtils.isBlank(tokenParam)) {
+//                log.warn("WebSocket 握手失败：缺少 Authorization 参数");
+//                return false;
+//            }
+//
+//            String rawToken = tokenParam.substring("Authorization=".length());
+//            String decodedToken = URLDecoder.decode(rawToken, StandardCharsets.UTF_8);
+//            if (!decodedToken.startsWith("Bearer ")) {
+//                log.warn("WebSocket 握手失败：Token 格式错误，应以 Bearer 开头");
+//                return false;
+//            }
+//            String token = decodedToken.substring("Bearer ".length());
+//
+//            // ✅ 获取 loginId 并校验 token 是否有效
+//            Object loginId = StpUtil.getLoginIdByToken(token);
+//            if (loginId == null) {
+//                throw NotLoginException.newInstance(StpUtil.getLoginType(), "-100", "Token 无效或已过期", token);
+//            }
+//
+//            // ✅ 获取 LoginUser（必须在登录时写入 tokenSession）
+//            LoginUser loginUser = LoginHelper.getLoginUser(token);
+//            if (loginUser == null) {
+//                log.warn("WebSocket 拦截失败：无法获取 LoginUser（请确认登录成功后已写入）");
+//                return false;
+//            }
+//
+//            // ✅ 校验 clientid 参数
+//            String clientIdParam = Arrays.stream(query.split("&"))
+//                .filter(p -> p.startsWith("clientid="))
+//                .map(p -> p.substring("clientid=".length()))
+//                .findFirst()
+//                .orElse(null);
+//
+//            Object clientIdStored = StpUtil.getExtra(token, LoginHelper.CLIENT_KEY);
+//            if (!StringUtils.equals(String.valueOf(clientIdStored), clientIdParam)) {
+//                throw NotLoginException.newInstance(StpUtil.getLoginType(), "-101", "Token 中 clientId 与传参不一致", token);
+//            }
+//
+//            // ✅ 注入用户信息用于后续逻辑
+//            attributes.put(LOGIN_USER_KEY, loginUser);
+//            log.info("✅ WebSocket 鉴权通过：userId={}, clientId={}", loginUser.getUserId(), clientIdParam);
+//            return true;
+//
+//        } catch (NotLoginException e) {
+//            log.error("❌ WebSocket 鉴权失败：{}", e.getMessage());
+//            return false;
+//        } catch (Exception e) {
+//            log.error("❌ WebSocket 握手异常：{}", e.getMessage(), e);
+//            return false;
+//        }
+//    }
+//
+//    @Override
+//    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
+//                               WebSocketHandler wsHandler, Exception exception) {
+//        // 握手后逻辑可选
+//        System.out.println(1);
+//
+//    }
+//
+//
+//}
