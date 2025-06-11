@@ -1,40 +1,24 @@
 package org.dromara.system.service.impl;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.common.core.domain.event.ProcessCreateTaskEvent;
-import org.dromara.common.core.domain.event.ProcessDeleteEvent;
-import org.dromara.common.core.domain.event.ProcessEvent;
-import org.dromara.common.core.enums.BusinessStatusEnum;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.system.domain.*;
 import org.dromara.system.domain.bo.SysContractBo;
-import org.dromara.system.domain.bo.SysEmployeeBo;
-import org.dromara.system.domain.bo.SysResignBo;
-import org.dromara.system.domain.vo.EmployeeStatsVo;
 import org.dromara.system.domain.vo.SysContractVo;
-import org.dromara.system.domain.vo.SysEmployeeVo;
-import org.dromara.system.domain.vo.SysResignVo;
 import org.dromara.system.mapper.*;
 import org.dromara.system.service.ISysContractService;
-import org.dromara.system.service.ISysResignService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.dromara.common.core.enums.BusinessStatusEnum;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
