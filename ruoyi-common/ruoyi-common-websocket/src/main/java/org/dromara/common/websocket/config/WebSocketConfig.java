@@ -38,6 +38,9 @@ public class WebSocketConfig {
             webSocketProperties.setAllowedOrigins("*");
         }
 
+        // ✅ 打印当前 WebSocket 注册路径
+        System.out.println("✅ WebSocket handler registered at: " + webSocketProperties.getPath());
+
         // 返回一个WebSocketConfigurer对象，用于配置WebSocket
         return registry -> registry
             // 添加WebSocket处理程序和拦截器到指定路径，设置允许的跨域来源
