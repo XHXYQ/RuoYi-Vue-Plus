@@ -86,4 +86,9 @@ public class SysHolidayController extends BaseController {
         ExcelUtil.exportExcel(list, "假期管理", SysHolidayVo.class, response);
     }
 
+    @GetMapping("/{holidayId}/users")
+    public R<List<Long>> getHolidayScopeUsers(@PathVariable Long holidayId) {
+        return R.ok(holidayService.getHolidayScopeUserIds(holidayId));
+    }
+
 }

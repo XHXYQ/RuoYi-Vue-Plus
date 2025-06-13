@@ -84,4 +84,7 @@ public class SysHolidayBo extends BaseEntity {
 
     @JsonIgnore
     private List<HolidayQuotaRule> companyAgeRules;
+
+    private List<Long> selectedUserIds;
+    private List<String> selectedUserNickNames;
 }

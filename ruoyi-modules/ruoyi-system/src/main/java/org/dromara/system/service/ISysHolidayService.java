@@ -3,8 +3,10 @@ package org.dromara.system.service;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.system.domain.SysHoliday;
+import org.dromara.system.domain.SysHolidayUser;
 import org.dromara.system.domain.bo.SysContractBo;
 import org.dromara.system.domain.bo.SysHolidayBo;
+import org.dromara.system.domain.vo.EmployeeHolidayBalanceVo;
 import org.dromara.system.domain.vo.SysContractVo;
 import org.dromara.system.domain.vo.SysHolidayVo;
 
@@ -67,6 +69,17 @@ public interface ISysHolidayService {
 
     boolean insertHolidayAndUser(SysHolidayBo bo);
 
+    /**
+     * 获取假期规则适用的用户ID列表
+     *
+     * @param holidayId 假期规则ID
+     * @return 用户ID列表
+     */
+    List<Long> getHolidayScopeUserIds(Long holidayId);
+    /**
+     * 获取假期范围内的用户信息（包含用户ID和昵称）
+     */
+    List<SysHolidayUser> getHolidayScopeUsers(Long holidayId);
 
-
+    List<EmployeeHolidayBalanceVo> getEmployeeHolidayBalances(Long employeeId);
 }

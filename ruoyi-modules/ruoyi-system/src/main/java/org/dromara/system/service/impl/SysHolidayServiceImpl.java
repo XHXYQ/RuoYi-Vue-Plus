@@ -30,6 +30,41 @@ import java.util.stream.Collectors;
 public class SysHolidayServiceImpl implements ISysHolidayService {
 
     private final SysHolidayMapper holidayMapper;
+    private final SysHolidayUserMapper holidayUserMapper;
+
+
+    @Override
+    public List<Long> getHolidayScopeUserIds(Long holidayId) {
+        // 参数校验
+        if (holidayId == null) {
+            throw new IllegalArgumentException("假期ID不能为空");
+        }
+
+        // 查询关联用户
+        LambdaQueryWrapper<SysHolidayUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysHolidayUser::getHolidayId, holidayId)
+            .select(SysHolidayUser::getUserId);
+
+        List<SysHolidayUser> relations = holidayUserMapper.selectList(queryWrapper);
+
+        // 提取用户ID列表
+        return relations.stream()
+            .map(SysHolidayUser::getUserId)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SysHolidayUser> getHolidayScopeUsers(Long holidayId) {
+        if (holidayId == null) {
+            throw new IllegalArgumentException("假期ID不能为空");
+        }
+
+        LambdaQueryWrapper<SysHolidayUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysHolidayUser::getHolidayId, holidayId)
+            .select(SysHolidayUser::getUserId, SysHolidayUser::getNickName); // 确保选择这两个字段
+
+        return holidayUserMapper.selectList(queryWrapper);
+    }
 
     @Override
     public int insertHoliday(SysHolidayBo bo) {
@@ -37,10 +72,36 @@ public class SysHolidayServiceImpl implements ISysHolidayService {
         return holidayMapper.insert(holiday);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public int updateHoliday(SysHolidayBo bo) {
+        // 1. 更新假期规则
         SysHoliday holiday = convertBoToEntity(bo);
-        return holidayMapper.updateById(holiday);
+        int result = holidayMapper.updateById(holiday);
+
+        // 2. 更新关联用户（先删除旧的，再添加新的）
+        if (bo.getSelectedUserIds() != null && bo.getSelectedUserNickNames() != null
+            && bo.getSelectedUserIds().size() == bo.getSelectedUserNickNames().size()) {
+
+            // 删除旧关联
+            LambdaQueryWrapper<SysHolidayUser> deleteWrapper = new LambdaQueryWrapper<>();
+            deleteWrapper.eq(SysHolidayUser::getHolidayId, bo.getHolidayId());
+            holidayUserMapper.delete(deleteWrapper);
+
+            // 添加新关联
+            List<SysHolidayUser> relations = new ArrayList<>();
+            for (int i = 0; i < bo.getSelectedUserIds().size(); i++) {
+                SysHolidayUser relation = new SysHolidayUser();
+                relation.setHolidayId(bo.getHolidayId());
+                relation.setUserId(bo.getSelectedUserIds().get(i));
+                relation.setNickName(bo.getSelectedUserNickNames().get(i));
+                relations.add(relation);
+            }
+
+            relations.forEach(holidayUserMapper::insert);
+        }
+
+        return result;
     }
 
     @Override
@@ -82,8 +143,6 @@ public class SysHolidayServiceImpl implements ISysHolidayService {
             .map(this::convertEntityToVo)
             .collect(Collectors.toList());
     }
-
-
 
     private LambdaQueryWrapper<SysHoliday> buildQueryWrapper(SysHolidayBo bo) {
         LambdaQueryWrapper<SysHoliday> lqw = Wrappers.lambdaQuery();
@@ -166,18 +225,69 @@ public class SysHolidayServiceImpl implements ISysHolidayService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean insertHolidayAndUser(SysHolidayBo bo) {
-        // 1. 参数校验（可选）
-        if (bo == null) {
-            throw new IllegalArgumentException("离职信息不能为空");
+        // 1. 保存假期规则
+        SysHoliday holiday = convertBoToEntity(bo);
+        int result = holidayMapper.insert(holiday);
+        if (result <= 0) {
+            return false;
         }
 
-        // 2. 插入离职记录
-        SysHoliday holiday = new SysHoliday();
-        BeanUtils.copyProperties(bo, holiday);
-        int holidayInsertResult = holidayMapper.insert(holiday);
+        // 2. 处理关联用户（仅当scopeType为"部门/人员"时）
+        if ("部门/人员".equals(bo.getScopeType()) &&
+            CollectionUtils.isNotEmpty(bo.getSelectedUserIds())) {
 
-        // 3. 返回操作结果（仅检查离职记录是否插入成功）
-        return holidayInsertResult > 0;
+            // 获取假期规则详情用于填充关联表
+            SysHolidayVo holidayDetail = selectHolidayById(holiday.getHolidayId());
+
+            List<SysHolidayUser> relations = new ArrayList<>();
+            for (int i = 0; i < bo.getSelectedUserIds().size(); i++) {
+                SysHolidayUser relation = new SysHolidayUser();
+                relation.setHolidayId(holiday.getHolidayId());
+                relation.setUserId(bo.getSelectedUserIds().get(i));
+                relation.setNickName(bo.getSelectedUserNickNames().get(i));
+                // 新增关键字段
+                relation.setScopeType(bo.getScopeType());
+                relation.setBalanceType(holidayDetail.getBalanceType());
+                relation.setHolidayName(holidayDetail.getName());
+                relations.add(relation);
+            }
+
+            // 批量插入
+            relations.forEach(holidayUserMapper::insert);
+        }
+
+        return true;
+    }
+
+    @Override
+    public List<EmployeeHolidayBalanceVo> getEmployeeHolidayBalances(Long employeeId) {
+        // 1. 查询所有假期规则
+        List<SysHoliday> allHolidays = holidayMapper.selectList(new LambdaQueryWrapper<>());
+
+        // 2. 查询该员工关联的所有假期规则
+        LambdaQueryWrapper<SysHolidayUser> userHolidayQuery = new LambdaQueryWrapper<>();
+        userHolidayQuery.eq(SysHolidayUser::getUserId, employeeId);
+        List<SysHolidayUser> userHolidays = holidayUserMapper.selectList(userHolidayQuery);
+
+        // 3. 组装返回结果
+        return allHolidays.stream()
+            .filter(holiday -> {
+                // 如果假期规则是"全公司"范围，则所有员工都有
+                if ("全公司".equals(holiday.getScopeType())) {
+                    return true;
+                }
+                // 否则检查是否在特定员工列表中
+                return userHolidays.stream()
+                    .anyMatch(uh -> uh.getHolidayId().equals(holiday.getHolidayId()));
+            })
+            .map(holiday -> {
+                EmployeeHolidayBalanceVo vo = new EmployeeHolidayBalanceVo();
+                vo.setHolidayId(holiday.getHolidayId());
+                vo.setHolidayName(holiday.getName());
+                vo.setBalanceType(holiday.getBalanceType());
+                return vo;
+            })
+            .collect(Collectors.toList());
     }
 
 }
