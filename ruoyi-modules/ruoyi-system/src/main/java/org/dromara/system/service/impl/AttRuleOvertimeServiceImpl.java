@@ -1,5 +1,6 @@
 package org.dromara.system.service.impl;
 
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.json.utils.JsonUtils;
@@ -157,9 +158,61 @@ public class AttRuleOvertimeServiceImpl implements IAttRuleOvertimeService {
      */
     @Override
     public Boolean updateByBo(AttRuleOvertimeBo bo) {
-        AttRuleOvertime update = MapstructUtils.convert(bo, AttRuleOvertime.class);
-        validEntityBeforeSave(update);
-        return baseMapper.updateById(update) > 0;
+        AttRuleOvertime entity = baseMapper.selectById(bo.getId());
+        if (entity == null) {
+            throw new ServiceException("加班规则不存在");
+        }
+
+        // 2. 更新JSON字段（需要手动转换为JSON字符串）
+        if (bo.getGroupsId() != null) {
+            entity.setGroupsId(JsonUtils.toJsonString(bo.getGroupsId()));
+        }
+        if (bo.getDetail() != null) {
+            entity.setDetail(JsonUtils.toJsonString(bo.getDetail()));
+        }
+        if (bo.getRiskWarning() != null) {
+            entity.setRiskWarning(JsonUtils.toJsonString(bo.getRiskWarning()));
+        }
+        if (bo.getBigDurationTime() != null) {
+            entity.setBigDurationTime(JsonUtils.toJsonString(bo.getBigDurationTime()));
+        }
+        if (bo.getStartOrEnd() != null) {
+            entity.setStartOrEnd(JsonUtils.toJsonString(bo.getStartOrEnd()));
+        }
+
+        // 3. 更新普通字段
+        if (StringUtils.isNotBlank(bo.getName())) {
+            entity.setName(bo.getName());
+        }
+        if (bo.getDirector() != null) {
+            entity.setDirector(bo.getDirector());
+        }
+        if (bo.getDurationUnit() != null) {
+            entity.setDurationUnit(bo.getDurationUnit());
+        }
+        if (bo.getToIntegerRule() != null) {
+            entity.setToIntegerRule(bo.getToIntegerRule());
+        }
+        if (bo.getToInterValue() != null) {
+            entity.setToInterValue(bo.getToInterValue());
+        }
+        if (StringUtils.isNotBlank(bo.getHourToDay())) {
+            entity.setHourToDay(bo.getHourToDay());
+        }
+        if (bo.getRiskWarningStatus() != null) {
+            entity.setRiskWarningStatus(bo.getRiskWarningStatus());
+        }
+        if (bo.getBigDurationTimeStatus() != null) {
+            entity.setBigDurationTimeStatus(bo.getBigDurationTimeStatus());
+        }
+        if (bo.getStartOrEndStatus() != null) {
+            entity.setStartOrEndStatus(bo.getStartOrEndStatus());
+        }
+        if (bo.getStatus() != null) {
+            entity.setStatus(bo.getStatus());
+        }
+        validEntityBeforeSave(entity);
+        return baseMapper.updateById(entity) > 0;
     }
 
     /**
