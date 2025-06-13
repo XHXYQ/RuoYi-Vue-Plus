@@ -2,12 +2,14 @@ package org.dromara.system.service.impl;
 
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.system.domain.AttRuleOvertime;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.AttRuleCardReplacementBo;
 import org.dromara.system.domain.vo.AttRuleCardReplacementVo;
@@ -71,16 +73,26 @@ public class AttRuleCardReplacementServiceImpl implements IAttRuleCardReplacemen
     private LambdaQueryWrapper<AttRuleCardReplacement> buildQueryWrapper(AttRuleCardReplacementBo bo) {
         Map<String, Object> params = bo.getParams();
         LambdaQueryWrapper<AttRuleCardReplacement> lqw = Wrappers.lambdaQuery();
+
+        if (bo.getGroupsId() != null && !bo.getGroupsId().isEmpty()) {
+            lqw.eq(AttRuleCardReplacement::getGroupsId, JsonUtils.toJsonString(bo.getGroupsId()));
+        }
+
+        if (bo.getDirector() != null && !bo.getDirector().isEmpty()) {
+            lqw.eq(AttRuleCardReplacement::getDirector, JsonUtils.toJsonString(bo.getDirector()));
+        }
+
+        if (bo.getType() != null && !bo.getType().isEmpty()) {
+            lqw.eq(AttRuleCardReplacement::getType, JsonUtils.toJsonString(bo.getType()));
+        }
+
         lqw.orderByAsc(AttRuleCardReplacement::getId);
         lqw.like(StringUtils.isNotBlank(bo.getName()), AttRuleCardReplacement::getName, bo.getName());
-        lqw.eq(StringUtils.isNotBlank(bo.getGroupsId()), AttRuleCardReplacement::getGroupsId, bo.getGroupsId());
-        lqw.eq(StringUtils.isNotBlank(bo.getDirector()), AttRuleCardReplacement::getDirector, bo.getDirector());
         lqw.eq(bo.getAllow() != null, AttRuleCardReplacement::getAllow, bo.getAllow());
         lqw.eq(bo.getNum() != null, AttRuleCardReplacement::getNum, bo.getNum());
         lqw.eq(StringUtils.isNotBlank(bo.getDate()), AttRuleCardReplacement::getDate, bo.getDate());
         lqw.eq(bo.getPastDay() != null, AttRuleCardReplacement::getPastDay, bo.getPastDay());
         lqw.eq(bo.getDayType() != null, AttRuleCardReplacement::getDayType, bo.getDayType());
-        lqw.eq(StringUtils.isNotBlank(bo.getType()), AttRuleCardReplacement::getType, bo.getType());
         lqw.eq(bo.getDeletedAt() != null, AttRuleCardReplacement::getDeletedAt, bo.getDeletedAt());
         lqw.eq(bo.getIsDefault() != null, AttRuleCardReplacement::getIsDefault, bo.getIsDefault());
         return lqw;
@@ -94,11 +106,25 @@ public class AttRuleCardReplacementServiceImpl implements IAttRuleCardReplacemen
      */
     @Override
     public Boolean insertByBo(AttRuleCardReplacementBo bo) {
-        AttRuleCardReplacement add = MapstructUtils.convert(bo, AttRuleCardReplacement.class);
-        validEntityBeforeSave(add);
-        boolean flag = baseMapper.insert(add) > 0;
+        AttRuleCardReplacement entity = new AttRuleCardReplacement();
+        // 直接赋值，MyBatis-Plus 会自动处理 JSON 转换
+        entity.setGroupsId(JsonUtils.toJsonString(bo.getGroupsId()));
+        entity.setDirector(JsonUtils.toJsonString(bo.getDirector()));
+        entity.setType(JsonUtils.toJsonString(bo.getType()));
+
+        // 处理普通字段
+        entity.setName(bo.getName());
+        entity.setAllow(bo.getAllow());
+        entity.setNum(bo.getNum());
+        entity.setDate(bo.getDate());
+        entity.setPastDay(bo.getPastDay());
+        entity.setDayType(bo.getDayType());
+
+
+        validEntityBeforeSave(entity);
+        boolean flag = baseMapper.insert(entity) > 0;
         if (flag) {
-            bo.setId(add.getId());
+            bo.setId(entity.getId());
         }
         return flag;
     }

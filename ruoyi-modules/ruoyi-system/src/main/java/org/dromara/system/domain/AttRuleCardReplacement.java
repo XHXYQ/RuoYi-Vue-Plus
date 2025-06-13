@@ -1,5 +1,6 @@
 package org.dromara.system.domain;
 
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -37,11 +38,13 @@ public class AttRuleCardReplacement extends BaseEntity {
     /**
      * 应用范围（考勤组id）
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String groupsId;
 
     /**
      * 负责人id数组
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String director;
 
     /**
@@ -72,6 +75,7 @@ public class AttRuleCardReplacement extends BaseEntity {
     /**
      * 补卡类型 1缺卡 2迟到 3早退 4正常
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String type;
 
     /**

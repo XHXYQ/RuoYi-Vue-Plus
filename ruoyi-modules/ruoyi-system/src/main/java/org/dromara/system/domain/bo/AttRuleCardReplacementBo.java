@@ -4,11 +4,13 @@ import org.dromara.system.domain.AttRuleCardReplacement;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import io.github.linpeilie.annotations.AutoMapper;
+//import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import java.util.Date;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AutoMapper(target = AttRuleCardReplacement.class, reverseConvertGenerate = false)
+//@AutoMapper(target = AttRuleCardReplacement.class, reverseConvertGenerate = false)
 public class AttRuleCardReplacementBo extends BaseEntity {
 
     /**
@@ -37,13 +39,13 @@ public class AttRuleCardReplacementBo extends BaseEntity {
     /**
      * 应用范围（考勤组id）
      */
-    private String groupsId;
+    private List<Long> groupsId;
 
     /**
      * 负责人id数组
      */
-    @NotBlank(message = "负责人id数组不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String director;
+//    @NotBlank(message = "负责人id数组不能为空", groups = { AddGroup.class, EditGroup.class })
+    private List<Long> director;
 
     /**
      * 是否允许补卡 1允许 2不允许
@@ -78,8 +80,8 @@ public class AttRuleCardReplacementBo extends BaseEntity {
     /**
      * 补卡类型 1缺卡 2迟到 3早退 4正常
      */
-    @NotBlank(message = "补卡类型 1缺卡 2迟到 3早退 4正常不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String type;
+//    @NotBlank(message = "补卡类型 1缺卡 2迟到 3早退 4正常不能为空", groups = { AddGroup.class, EditGroup.class })
+    private List<Long> type;
 
     /**
      *
@@ -89,7 +91,7 @@ public class AttRuleCardReplacementBo extends BaseEntity {
     /**
      * 是否默认 1是 0否
      */
-    @NotNull(message = "是否默认 1是 0否不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "是否默认 1是 0否不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long isDefault;
 
 
