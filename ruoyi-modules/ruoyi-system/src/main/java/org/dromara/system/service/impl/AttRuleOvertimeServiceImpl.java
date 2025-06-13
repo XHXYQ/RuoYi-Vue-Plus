@@ -2,6 +2,7 @@ package org.dromara.system.service.impl;
 
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -22,7 +23,7 @@ import java.util.Collection;
 /**
  * 加班规则Service业务层处理
  *
- * @author Lion Li
+ * @author Skye
  * @date 2025-06-13
  */
 @RequiredArgsConstructor
@@ -71,24 +72,43 @@ public class AttRuleOvertimeServiceImpl implements IAttRuleOvertimeService {
     private LambdaQueryWrapper<AttRuleOvertime> buildQueryWrapper(AttRuleOvertimeBo bo) {
         Map<String, Object> params = bo.getParams();
         LambdaQueryWrapper<AttRuleOvertime> lqw = Wrappers.lambdaQuery();
-        lqw.orderByAsc(AttRuleOvertime::getId);
-        lqw.eq(StringUtils.isNotBlank(bo.getGroupsId()), AttRuleOvertime::getGroupsId, bo.getGroupsId());
+
+        // 处理 groupsId（List<Long> -> JSON String）
+        if (bo.getGroupsId() != null && !bo.getGroupsId().isEmpty()) {
+            lqw.eq(AttRuleOvertime::getGroupsId, JsonUtils.toJsonString(bo.getGroupsId()));
+        }
+
+        // 处理其他JSON字段
+        if (bo.getDetail() != null && !bo.getDetail().isEmpty()) {
+            lqw.eq(AttRuleOvertime::getDetail, JsonUtils.toJsonString(bo.getDetail()));
+        }
+
+        if (bo.getRiskWarning() != null && !bo.getRiskWarning().isEmpty()) {
+            lqw.eq(AttRuleOvertime::getRiskWarning, JsonUtils.toJsonString(bo.getRiskWarning()));
+        }
+
+        if (bo.getBigDurationTime() != null && !bo.getBigDurationTime().isEmpty()) {
+            lqw.eq(AttRuleOvertime::getBigDurationTime, JsonUtils.toJsonString(bo.getBigDurationTime()));
+        }
+
+        if (bo.getStartOrEnd() != null && !bo.getStartOrEnd().isEmpty()) {
+            lqw.eq(AttRuleOvertime::getStartOrEnd, JsonUtils.toJsonString(bo.getStartOrEnd()));
+        }
+
+        // 处理普通字段（保持不变）
         lqw.like(StringUtils.isNotBlank(bo.getName()), AttRuleOvertime::getName, bo.getName());
         lqw.eq(bo.getDirector() != null, AttRuleOvertime::getDirector, bo.getDirector());
-        lqw.eq(StringUtils.isNotBlank(bo.getDetail()), AttRuleOvertime::getDetail, bo.getDetail());
+        lqw.orderByAsc(AttRuleOvertime::getId);
+        lqw.like(StringUtils.isNotBlank(bo.getName()), AttRuleOvertime::getName, bo.getName());
+        lqw.eq(bo.getDirector() != null, AttRuleOvertime::getDirector, bo.getDirector());
         lqw.eq(bo.getDurationUnit() != null, AttRuleOvertime::getDurationUnit, bo.getDurationUnit());
         lqw.eq(bo.getToIntegerRule() != null, AttRuleOvertime::getToIntegerRule, bo.getToIntegerRule());
         lqw.eq(bo.getToInterValue() != null, AttRuleOvertime::getToInterValue, bo.getToInterValue());
         lqw.eq(StringUtils.isNotBlank(bo.getHourToDay()), AttRuleOvertime::getHourToDay, bo.getHourToDay());
         lqw.eq(bo.getRiskWarningStatus() != null, AttRuleOvertime::getRiskWarningStatus, bo.getRiskWarningStatus());
-        lqw.eq(StringUtils.isNotBlank(bo.getRiskWarning()), AttRuleOvertime::getRiskWarning, bo.getRiskWarning());
         lqw.eq(bo.getBigDurationTimeStatus() != null, AttRuleOvertime::getBigDurationTimeStatus, bo.getBigDurationTimeStatus());
-        lqw.eq(StringUtils.isNotBlank(bo.getBigDurationTime()), AttRuleOvertime::getBigDurationTime, bo.getBigDurationTime());
         lqw.eq(bo.getStartOrEndStatus() != null, AttRuleOvertime::getStartOrEndStatus, bo.getStartOrEndStatus());
-        lqw.eq(StringUtils.isNotBlank(bo.getStartOrEnd()), AttRuleOvertime::getStartOrEnd, bo.getStartOrEnd());
         lqw.eq(bo.getStatus() != null, AttRuleOvertime::getStatus, bo.getStatus());
-        lqw.eq(bo.getIsDefault() != null, AttRuleOvertime::getIsDefault, bo.getIsDefault());
-        lqw.eq(bo.getDeletedAt() != null, AttRuleOvertime::getDeletedAt, bo.getDeletedAt());
         return lqw;
     }
 
@@ -100,11 +120,31 @@ public class AttRuleOvertimeServiceImpl implements IAttRuleOvertimeService {
      */
     @Override
     public Boolean insertByBo(AttRuleOvertimeBo bo) {
-        AttRuleOvertime add = MapstructUtils.convert(bo, AttRuleOvertime.class);
-        validEntityBeforeSave(add);
-        boolean flag = baseMapper.insert(add) > 0;
+        AttRuleOvertime entity = new AttRuleOvertime();
+
+        // 直接赋值，MyBatis-Plus 会自动处理 JSON 转换
+        entity.setGroupsId(JsonUtils.toJsonString(bo.getGroupsId()));
+        entity.setDetail(JsonUtils.toJsonString(bo.getDetail()));
+        entity.setRiskWarning(JsonUtils.toJsonString(bo.getRiskWarning()));
+        entity.setBigDurationTime(JsonUtils.toJsonString(bo.getBigDurationTime()));
+        entity.setStartOrEnd(JsonUtils.toJsonString(bo.getStartOrEnd()));
+
+        // 处理普通字段
+        entity.setName(bo.getName());
+        entity.setDirector(bo.getDirector());
+        entity.setDurationUnit(bo.getDurationUnit());
+        entity.setToIntegerRule(bo.getToIntegerRule());
+        entity.setToInterValue(bo.getToInterValue());
+        entity.setHourToDay(bo.getHourToDay());
+        entity.setRiskWarningStatus(bo.getRiskWarningStatus());
+        entity.setBigDurationTimeStatus(bo.getBigDurationTimeStatus());
+        entity.setStartOrEndStatus(bo.getStartOrEndStatus());
+        entity.setStatus(bo.getStatus() != null ? bo.getStatus() : 1L); // 默认启用
+
+        validEntityBeforeSave(entity);
+        boolean flag = baseMapper.insert(entity) > 0;
         if (flag) {
-            bo.setId(add.getId());
+            bo.setId(entity.getId());
         }
         return flag;
     }

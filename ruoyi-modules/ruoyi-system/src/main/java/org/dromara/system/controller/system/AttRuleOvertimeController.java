@@ -2,6 +2,7 @@ package org.dromara.system.controller.system;
 
 import java.util.List;
 
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
@@ -22,10 +23,12 @@ import org.dromara.system.domain.bo.AttRuleOvertimeBo;
 import org.dromara.system.service.IAttRuleOvertimeService;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 
+import static cn.dev33.satoken.SaManager.log;
+
 /**
  * 加班规则
  *
- * @author Lion Li
+ * @author Skye
  * @date 2025-06-13
  */
 @Validated

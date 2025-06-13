@@ -1,5 +1,7 @@
 package org.dromara.system.domain;
 
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -12,7 +14,7 @@ import java.io.Serial;
 /**
  * 加班规则对象 att_rule_overtime
  *
- * @author Lion Li
+ * @author Skye
  * @date 2025-06-13
  */
 @Data
@@ -32,6 +34,7 @@ public class AttRuleOvertime extends BaseEntity {
     /**
      * 应用范围（考勤组id）
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String groupsId;
 
     /**
@@ -47,6 +50,7 @@ public class AttRuleOvertime extends BaseEntity {
     /**
      * 加班配置详情
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String detail;
 
     /**
@@ -77,6 +81,7 @@ public class AttRuleOvertime extends BaseEntity {
     /**
      * 风险预警
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String riskWarning;
 
     /**
@@ -87,6 +92,7 @@ public class AttRuleOvertime extends BaseEntity {
     /**
      * 最大加班时间
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String bigDurationTime;
 
     /**
@@ -97,6 +103,7 @@ public class AttRuleOvertime extends BaseEntity {
     /**
      * 开始和结束都需要打卡
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private String startOrEnd;
 
     /**

@@ -4,22 +4,25 @@ import org.dromara.system.domain.AttRuleOvertime;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import io.github.linpeilie.annotations.AutoMapper;
+//import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 加班规则业务对象 att_rule_overtime
  *
- * @author Lion Li
+ * @author Skye
  * @date 2025-06-13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AutoMapper(target = AttRuleOvertime.class, reverseConvertGenerate = false)
+//@AutoMapper(target = AttRuleOvertime.class, reverseConvertGenerate = false)
 public class AttRuleOvertimeBo extends BaseEntity {
 
     /**
@@ -31,7 +34,7 @@ public class AttRuleOvertimeBo extends BaseEntity {
     /**
      * 应用范围（考勤组id）
      */
-    private String groupsId;
+    private List<Long> groupsId;
 
     /**
      * 加班规则名称
@@ -48,8 +51,8 @@ public class AttRuleOvertimeBo extends BaseEntity {
     /**
      * 加班配置详情
      */
-    @NotBlank(message = "加班配置详情不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String detail;
+//    @NotBlank(message = "加班配置详情不能为空", groups = { AddGroup.class, EditGroup.class })
+    private Map<String, Object> detail;
 
     /**
      * 加班时长单位 1小时 2天
@@ -83,7 +86,7 @@ public class AttRuleOvertimeBo extends BaseEntity {
     /**
      * 风险预警
      */
-    private String riskWarning;
+    private List<Map<String, Object>> riskWarning;  // 改为 List<Map>
 
     /**
      * 有无最大加班时间数据  1有 0没有
@@ -94,7 +97,7 @@ public class AttRuleOvertimeBo extends BaseEntity {
     /**
      * 最大加班时间
      */
-    private String bigDurationTime;
+    private List<Map<String, Object>> bigDurationTime;  // 改为 List<Map>
 
     /**
      * 开始和结束都需要打卡按钮  1开 0关
@@ -105,24 +108,14 @@ public class AttRuleOvertimeBo extends BaseEntity {
     /**
      * 开始和结束都需要打卡
      */
-    private String startOrEnd;
+    private Map<String, Object> startOrEnd;  // 改为 Map<String, Object>
 
     /**
      * 状态1 启用 0关闭
      */
-    @NotNull(message = "状态1 启用 0关闭不能为空", groups = { AddGroup.class, EditGroup.class })
+//    @NotNull(message = "状态1 启用 0关闭不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long status;
 
-    /**
-     * 是否默认 1是 0否
-     */
-    @NotNull(message = "是否默认 1是 0否不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Long isDefault;
-
-    /**
-     *
-     */
-    private Date deletedAt;
 
 
 }
