@@ -42,7 +42,7 @@ public class TestOvertimeController extends BaseController {
     /**
      * 查询请假列表
      */
-    @SaCheckPermission("workflow:overtime:list")
+    @SaCheckPermission(" ")
     @GetMapping("/list")
     public TableDataInfo<TestOvertimeVo> list(TestOvertimeBo bo, PageQuery pageQuery) {
         return testOvertimeService.queryPageList(bo, pageQuery);

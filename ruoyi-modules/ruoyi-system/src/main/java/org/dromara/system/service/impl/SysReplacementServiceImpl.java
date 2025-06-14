@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+import static cn.dev33.satoken.SaManager.log;
 
 
 @RequiredArgsConstructor
